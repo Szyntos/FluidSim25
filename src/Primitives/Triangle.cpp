@@ -3,12 +3,16 @@
 //
 
 #include "Triangle.h"
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "../utils/Globals.h"
 
 
 Triangle::Triangle() {
-    p1 = Point(0, 1);
-    p2 = Point(-1, -1);
-    p3 = Point(1, -1);
+    p1 = Point(1, 2);
+    p2 = Point(0, 0);
+    p3 = Point(2, 0);
     generateArray();
     initVBOs();
 }
@@ -21,14 +25,29 @@ Triangle::Triangle(Point p1, Point p2, Point p3) {
     initVBOs();
 }
 
-void Triangle::show() {
+void Triangle::show() const {
     ourShader.use();
+    ourShader.setFloat("colorOffr", sin(4*glfwGetTime())/2);
+    ourShader.setFloat("colorOffg", cos(3*glfwGetTime()) /2);
+    ourShader.setFloat("colorOffb", sin(3*cos(2*glfwGetTime()))/2);
+    ourShader.setMat4("model",
+                      glm::scale(glm::mat4(1.0f), glm::vec3(20, 20, 20)));
+    ourShader.setMat4("view",
+                      glm::mat4(1.0f));
+    ourShader.setMat4("projection",
+                      glm::ortho(0.0f, (float)windowWidth, 0.0f,
+                                 (float)windowHeight, 0.1f, 100.0f));
+
+
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+void Triangle::translate() {
+//    Do it with matrices
 
+}
 void Triangle::generateArray() {
     float positions[] = {
             p1.x, p1.y, p1.z,
@@ -53,7 +72,7 @@ void Triangle::generateArray() {
     k = 0;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; ++j) {
-            vertices[i * 6 + j + 3] = colors[k];
+            vertices[i * 6 + j + 3] = colors[k] + (float)(rand()%100-10)/200;
             k++;
         }
 
@@ -82,3 +101,5 @@ void Triangle::initVBOs() {
     glEnableVertexAttribArray(1);
 
 }
+
+

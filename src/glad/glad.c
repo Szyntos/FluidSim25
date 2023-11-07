@@ -38,7 +38,7 @@ static PFNWGLGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 
 #ifdef _MSC_VER
 #ifdef __has_include
-  #if __has_include(<winapifamily.h>)
+  #if __has_include(<winapifamily.a>)
     #define HAVE_WINAPIFAMILY 1
   #endif
 #elif _MSC_VER >= 1700 && !_USING_V110_SDK71_
@@ -47,7 +47,7 @@ static PFNWGLGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 #endif
 
 #ifdef HAVE_WINAPIFAMILY
-  #include <winapifamily.h>
+  #include <winapifamily.a>
   #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     #define IS_UWP 1
   #endif
@@ -76,7 +76,7 @@ void close_gl(void) {
     }
 }
 #else
-#include <dlfcn.h>
+#include <dlfcn.a>
 static void* libGL;
 
 #if !defined(__APPLE__) && !defined(__HAIKU__)

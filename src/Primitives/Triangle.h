@@ -8,7 +8,9 @@
 #include "Point.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "Shader.h"
+#include "glm/glm.hpp"
+#include <cstdlib>
+#include "../utils/Shader.h"
 
 class Triangle {
 public:
@@ -25,7 +27,8 @@ public:
 
     Triangle();
     Triangle(Point p1, Point p2, Point p3);
-    void show();
+    void show() const;
+    void translate();
 
 private:
     void generateArray();
