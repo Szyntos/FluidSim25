@@ -25,10 +25,16 @@ Grid::Grid(int numRows, int numCols) {
     for (int i = 0; i < rows; ++i) {
         cells[i][0].isSim = 0;
         cells[i][cols - 1].isSim = 0;
+        cells[i][0].u = 0;
+        cells[i][cols - 1].u = 0;
     }
     for (int i = 0; i < cols; ++i) {
         cells[0][i].isSim = 0;
         cells[rows - 1][i].isSim = 0;
+        cells[0][i].u = 0;
+        cells[rows - 1][i].u = 0;
+        cells[0][i].v = 0;
+        cells[rows - 1][i].v = 0;
     }
 }
 

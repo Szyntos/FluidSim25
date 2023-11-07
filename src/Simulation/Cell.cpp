@@ -30,3 +30,8 @@ void Cell::showSim() const {
     }
 }
 
+void Cell::setP(float p) {
+    this->p = p;
+
+}
+

@@ -11,8 +11,8 @@
 class Sim {
 public:
     Grid grid;
-    float g = 10;
-    float d = 2;
+    float g = 0;
+    float d = 0;
     float h = 100000;
     float o = 0.5;
     Sim();
@@ -25,7 +25,7 @@ public:
     float sampleField(float x, float y, int f);
     float avgU(int i, int j);
     float avgV(int i, int j);
-    void update(float dt);
+    void update(int count, float dt);
     void show();
 
 

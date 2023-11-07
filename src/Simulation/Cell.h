@@ -32,6 +32,7 @@ public:
 
     void show() const;
     void showSim() const;
+    void setP(float p);
 };
 
 

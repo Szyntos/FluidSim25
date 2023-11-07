@@ -16,8 +16,8 @@ Sim::Sim(int a, int b) : grid(a, b){
 void Sim::updateVelocity(float dt) {
     for (int i = 0; i < grid.rows; ++i) {
         for (int j = 0; j < grid.cols; ++j) {
-            if (grid.getCell(i, j).isSim && grid.getCell(i, j-1).isSim){
-                grid.getCell(i, j).v += dt * g;
+            if (grid.getCell(j, i).isSim){
+                grid.getCell(j, i).v += dt * g;
             }
 
         }
@@ -33,27 +33,30 @@ void Sim::incompressibility(int count, float dt) {
     int sy0;
     int sy1;
     for (int k = 0; k < count; ++k) {
-        for (int i = 0; i < grid.rows; ++i) {
-            for (int j = 0; j < grid.cols; ++j) {
-                Cell currentCell = grid.getCell(i, j);
-                if (currentCell.isSim){
-                    sx0 = grid.getCell(i-1, j).isSim;
-                    sx1 = grid.getCell(i+1, j).isSim;
-                    sy0 = grid.getCell(i, j-1).isSim;
-                    sy1 = grid.getCell(i, j+1).isSim;
+        for (int i = 0; i < grid.rows; i++) {
+            for (int j = 0; j < grid.cols; j++) {
+//                Cell currentCell = grid.getCell(j, i);
+//                grid.getCell(j, i).setP(100);
+                if (grid.getCell(j, i).isSim){
+                    sx0 = grid.getCell(j-1, i).isSim;
+                    sx1 = grid.getCell(j+1, i).isSim;
+                    sy0 = grid.getCell(j, i-1).isSim;
+                    sy1 = grid.getCell(j, i+1).isSim;
                     s = sx0 + sx1 + sy0 + sy1;
-                    div  = grid.getCell(i + 1, j).u;
-                    div -= currentCell.u;
-                    div += grid.getCell(i , j+1).v;
-                    div -= currentCell.v;
+                    div  = grid.getCell(j + 1, i).u;
+                    div -= grid.getCell(j, i).u;
+                    div += grid.getCell(j , i+1).v;
+                    div -= grid.getCell(j, i).v;
                     div *= -o;
                     div /= s;
+
                     if (s){
-                        currentCell.u -= sx0 * div;
-                        grid.getCell(i+1, j).u += sx1 * div;
-                        currentCell.v -= sy0 * div;
-                        grid.getCell(i, j+1).v += sy1 * div;
-                        currentCell.p  += div / s * d * h / dt;
+                        grid.getCell(j, i).u -= sx0 * div;
+                        grid.getCell(j+1, i).u += sx1 * div;
+                        grid.getCell(j, i).v -= sy0 * div;
+                        grid.getCell(j, i+1).v += sy1 * div;
+                        grid.getCell(j, i).p  += div / s * d * h / dt;
+
                     }
 
                 }
@@ -111,7 +114,7 @@ void Sim::advectVel(float dt) {
 
 
             // u component
-            if (grid.getCell(i, j).isSim && grid.getCell(i - 1, j).isSim) {
+            if (grid.getCell(i, j).isSim) {
                 x = i*h;
                 y = j*h + h2;
                 u = grid.getCell(i, j).u;
@@ -123,7 +126,7 @@ void Sim::advectVel(float dt) {
                 grid.getCell(i, j).newU = u;
             }
             // v component
-            if (grid.getCell(i, j).isSim && grid.getCell(i, j - 1).isSim) {
+            if (grid.getCell(i, j).isSim) {
                 x = i*h + h2;
                 y = j*h;
                 u = avgU(i, j);
@@ -175,11 +178,11 @@ void Sim::advectSmoke(float dt) {
     }
 }
 
-void Sim::update(float dt) {
+void Sim::update(int count, float dt) {
     updateVelocity(dt);
-    incompressibility(1, dt);
-//    extrapolate();
-//    advectVel(dt);
+    incompressibility(count, dt);
+    extrapolate();
+    advectVel(dt);
     advectSmoke(dt);
 
 
