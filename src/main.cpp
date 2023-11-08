@@ -9,42 +9,43 @@
 #include "utils/utils.h"
 GLFWwindow* window;
 int windowHeight = 1000;
-int windowWidth = 1000;
+int windowWidth = 1500;
 double xpos;
 double ypos;
 double prevx = 0;
 double prevy = 0;
 double dx = 0;
 double dy = 0;
+
+int res = 100;
+int windowResized = 0;
 int isMouseOnScreen = 0;
 int isMouseLeftPressed = 0;
 int isMouseRightPressed = 0;
 int isMouseMiddlePressed = 0;
+int isControlPressed = 1;
 int brushPositionsX[] = {0, 0, 1, 1, 1, 0, -1, -1, -1};
 int brushPositionsY[] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
-//Sim sim;
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void cursor_enter_callback(GLFWwindow* wind, int entered);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-void brush(Sim sim);
+void brush(Sim *sim);
+void velocityBrush(Sim *sim);
+void smokeBrush(Sim *sim);
+void barrierBrush(Sim *sim);
+void emptyBrush(Sim *sim);
 int init();
+Sim initSim(int res);
+void resizeSim(int res, Sim *sim);
 int main()
 {
     if (init()){
         return -1;
     }
-    float realH;
-//    Grid grid = Grid(50, 50);
-    int h = 120;
-    realH = windowHeight/h;
-    realH = windowHeight/realH;
-    std::cout<<realH;
-    Sim sim = Sim(realH, realH);
-    sim.o = 1.5;
-
+    Sim sim = initSim(res);
 
     double oldTimeSinceStart = 0;
     int iii = 0;
@@ -56,50 +57,22 @@ int main()
 
         processInput(window);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
-        if ( isMouseLeftPressed){
-            for (int i = 0; i < 9; ++i) {
-                sim.grid.getCell(bound(0, sim.grid.cols - 1,
-                                       xpos/sim.h + brushPositionsX[i]),
-                                 bound(0, sim.grid.cols - 1,
-                                       sim.grid.rows -  ypos/sim.h - 1 + brushPositionsY[i])).u = 1000 * dx;
-                sim.grid.getCell(bound(0, sim.grid.cols - 1,
-                                       xpos/sim.h + brushPositionsX[i]),
-                                 bound(0, sim.grid.cols - 1,
-                                       sim.grid.rows -  ypos/sim.h - 1 + brushPositionsY[i])).v = -1000 * dy;
-            }
-
-        }else if (isMouseRightPressed){
-            for (int i = 0; i < 9; ++i) {
-                sim.grid.getCell(bound(0, sim.grid.cols - 1,
-                                       xpos / sim.h + brushPositionsX[i]),
-                                 bound(0, sim.grid.cols - 1,
-                                       sim.grid.rows - ypos / sim.h - 1 + brushPositionsY[i])).d = 5000;
-            }
-        }else if (isMouseMiddlePressed){
-            for (int i = 0; i < 9; ++i) {
-                sim.grid.getCell(bound(0, sim.grid.cols - 1,
-                                       xpos / sim.h + brushPositionsX[i]),
-                                 bound(0, sim.grid.cols - 1,
-                                       sim.grid.rows - ypos / sim.h - 1 + brushPositionsY[i])).isSim = 0;
-            }
+        if (windowResized){
+            resizeSim(res, &sim);
+            windowResized = 0;
         }
 
 
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        brush(&sim);
 
-//        if (iii % 100 == 0||1){
-//            std::cout<<"=======================================================\n";
-//        }
-        iii ++;
         sim.update(10, deltaTime);
 
         sim.show();
-//        std::cout<<sim.sampleField(xpos, windowHeight - ypos, 1)<<"\n";
+        std::cout << 1/deltaTime <<"\n";
+        //        std::cout<<sim.sampleField(xpos, windowHeight - ypos, 1)<<"\n";
 
 
         glfwSwapBuffers(window);
@@ -109,7 +82,24 @@ int main()
     return 0;
 }
 
-
+void resizeSim(int res, Sim *sim){
+    float realH;
+    float realW;
+    realH = windowHeight/res;
+    realH = windowHeight/realH;
+    realW = windowWidth/(windowHeight/res);
+    sim->resize(realH, realW);
+}
+Sim initSim(int res){
+    float realH;
+    float realW;
+    realH = windowHeight/res;
+    realH = windowHeight/realH;
+    realW = windowWidth/(windowHeight/res);
+    Sim sim = Sim(realH, realW);
+    sim.o = 1.5;
+    return sim;
+}
 int init(){
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -166,27 +156,78 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
 
 }
-void brush(Sim sim){
-    if (isMouseLeftPressed){
-        sim.grid.getCell(bound(0, sim.grid.cols - 1, xpos/sim.h),
-                         bound(0, sim.grid.cols - 1, sim.grid.rows -  ypos/sim.h - 1)).v = 5000;
+void brush(Sim *sim){
+    if ( isMouseLeftPressed){
+        velocityBrush(sim);
     }else if (isMouseRightPressed){
-        sim.grid.getCell(bound(0, sim.grid.cols - 1, xpos/sim.h),
-                         bound(0, sim.grid.cols - 1, sim.grid.rows -  ypos/sim.h - 1)).d = 5000;
+        smokeBrush(sim);
+    }else if (isMouseMiddlePressed){
+        if (isControlPressed){
+            emptyBrush(sim);
+        }else{
+            barrierBrush(sim);
+        }
+    }
+}
+void velocityBrush(Sim *sim){
+    for (int i = 0; i < 9; ++i) {
+        sim->grid.getCell(bound(0, sim->grid.rows - 1,
+
+                                sim->grid.rows -  ypos/sim->h - 1 + brushPositionsY[i]),
+
+                          bound(0, sim->grid.cols - 1,
+
+                                xpos/sim->h + brushPositionsX[i])).u = -1000 * dy;
+        sim->grid.getCell(bound(0, sim->grid.rows - 1,
+                                sim->grid.rows -  ypos/sim->h - 1 + brushPositionsY[i] ),
+                          bound(0, sim->grid.cols - 1,
+                                xpos/sim->h + brushPositionsX[i])).v = 1000 * dx;
     }
 }
 
+void smokeBrush(Sim *sim){
+    for (int i = 0; i < 9; ++i) {
+        sim->grid.getCell(bound(0, sim->grid.rows - 1,
+                                sim->grid.rows - ypos / sim->h - 1 + brushPositionsY[i] ),
+                          bound(0, sim->grid.cols - 1,
+                                xpos / sim->h + brushPositionsX[i])).d = 2000;
+    }
+}
+void barrierBrush(Sim *sim){
+    for (int i = 0; i < 9; ++i) {
+        sim->grid.getCell(bound(0, sim->grid.rows - 1,
+                                sim->grid.rows - ypos / sim->h - 1 + brushPositionsY[i]),
+                          bound(0, sim->grid.cols - 1,
+                                xpos / sim->h + brushPositionsX[i] )).isSim = 0;
+    }
+}
+void emptyBrush(Sim *sim){
+    for (int i = 0; i < 9; ++i) {
+        sim->grid.getCell(bound(1, sim->grid.rows - 2,
+                                sim->grid.rows - ypos / sim->h - 1 + brushPositionsY[i]),
+                          bound(1, sim->grid.cols - 2,
+                                xpos / sim->h + brushPositionsX[i] )).isSim = 1;
+    }
+}
 
 void framebuffer_size_callback(GLFWwindow* wind, int width, int height)
 {
     windowWidth = width;
     windowHeight = height;
     glViewport(0, 0, width, height);
+    windowResized = 1;
 }
 void processInput(GLFWwindow *wind)
 {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
         glfwSetWindowShouldClose(wind, true);
+    }
+    if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS){
+        isControlPressed = 1;
+    }else{
+        isControlPressed = 0;
+    }
+
     if (isMouseOnScreen){
 
         glfwGetCursorPos(window, &xpos, &ypos);

@@ -35,3 +35,15 @@ void Cell::setP(float p) {
 
 }
 
+void Cell::copyFrom(Cell other) {
+    u = other.u;
+    newU = other.newU;
+    v = other.v;
+    newV = other.newV;
+    p = other.p;
+    d = other.d;
+    newD = other.newD;
+    isSim = other.isSim;
+//    repr = other.repr;
+}
+

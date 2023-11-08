@@ -19,7 +19,7 @@ Grid::Grid(int numRows, int numCols) {
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            cells[i][j] = Cell(i, j, this->sqh);
+            cells[i][j] = Cell(j, i, this->sqh);
             cells[i][j].isSim = 1;
         }
     }
@@ -39,16 +39,51 @@ Grid::Grid(int numRows, int numCols) {
     }
 }
 
-Grid::~Grid() {
+void Grid::deleteCells(){
     for (int i = 0; i < rows; i++) {
         delete[] cells[i];
     }
     delete[] cells;
 }
+void Grid::copyCells(Grid other){
+    if (this != &other) {
+        // First, delete the existing cells
+        deleteCells();
 
-Cell &Grid::getCell(int x, int y) {
-    if (x >= 0 && x < rows && y >= 0 && y < cols) {
-        return cells[x][y];
+        // Copy the dimensions
+        rows = other.rows;
+        cols = other.cols;
+
+        // Allocate memory for the new cells
+        cells = new Cell*[rows];
+        for (int i = 0; i < rows; ++i) {
+            cells[i] = new Cell[cols];
+        }
+
+        // Copy the cell values from 'other' to 'this'
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                cells[i][j] = other.cells[i][j];
+                cells[i][j].isSim = 1;
+            }
+        }
+        for (int i = 0; i < rows; ++i) {
+            cells[i][0].isSim = 0;
+            cells[i][cols - 1].isSim = 0;
+        }
+        for (int i = 0; i < cols; ++i) {
+            cells[0][i].isSim = 0;
+            cells[rows - 1][i].isSim = 0;
+        }
+
+        // Copy 'sqh' from 'other'
+//        sqh = other.sqh;
+    }
+}
+
+Cell &Grid::getCell(int i, int j) {
+    if (i >= 0 && i < rows && j >= 0 && j < cols) {
+        return cells[i][j];
     } else {
         std::cout <<"Cell coordinates out of bounds."<<"\n";
         // Handle out-of-bounds access, you can customize this part.
@@ -86,7 +121,7 @@ Grid::Grid() {
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            cells[i][j] = Cell(i, j, this->sqh);
+            cells[i][j] = Cell(j, i, this->sqh);
             cells[i][j].isSim = 1;
         }
     }

@@ -12,24 +12,20 @@
 #include "../Primitives/SquareHelper.h"
 
 class Grid {
-private:
-
-
-
+public:
     Cell** cells;
     SquareHelper sqh;
-
-public:
     int rows;
     int cols;
     Grid();
     Grid(int numRows, int numCols);
 
-    ~Grid();
+
+    void deleteCells();
+    void copyCells(Grid other);
 
 
-
-    Cell& getCell(int x, int y);
+    Cell& getCell(int i, int j);
 
     void show();
     void showSim();

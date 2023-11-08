@@ -17,6 +17,7 @@ public:
     float o = 0.5;
     Sim();
     Sim(int a, int b);
+    void resize(int a, int b);
     void updateVelocity(float dt);
     void incompressibility(int count, float dt);
     void extrapolate();

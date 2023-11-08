@@ -7,7 +7,6 @@
 
 #include "../Primitives/Square.h"
 
-class Grid;
 
 class Cell {
 public:
@@ -30,6 +29,7 @@ public:
 
     Cell(int x, int y, SquareHelper sqh);
 
+    void copyFrom(Cell other);
     void show() const;
     void showSim() const;
     void setP(float p);

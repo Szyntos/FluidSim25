@@ -33,8 +33,8 @@ void Sim::incompressibility(int count, float dt) {
     int sy0;
     int sy1;
     for (int k = 0; k < count; ++k) {
-        for (int i = 0; i < grid.rows; i++) {
-            for (int j = 0; j < grid.cols; j++) {
+        for (int i = 0; i < grid.cols; i++) {
+            for (int j = 0; j < grid.rows; j++) {
 //                Cell currentCell = grid.getCell(j, i);
 //                grid.getCell(j, i).setP(100);
                 if (grid.getCell(j, i).isSim){
@@ -69,13 +69,13 @@ void Sim::incompressibility(int count, float dt) {
 
 
 void Sim::extrapolate() {
-    for (int i = 0; i < grid.cols; i++) {
-        grid.getCell(i, 0).u = grid.getCell(i, 1).u;
-        grid.getCell(i, grid.rows - 1).u = grid.getCell(i, grid.rows - 2).u;
-    }
     for (int i = 0; i < grid.rows; i++) {
+        grid.getCell(i, 0).u = grid.getCell(i, 1).u;
+        grid.getCell(i, grid.cols - 1).u = grid.getCell(i, grid.cols - 2).u;
+    }
+    for (int i = 0; i < grid.cols; i++) {
         grid.getCell(0, i).v = grid.getCell(1, i).v;
-        grid.getCell(grid.cols - 1, i).v = grid.getCell(grid.cols - 2, i).v;
+        grid.getCell(grid.rows - 1, i).v = grid.getCell(grid.rows - 2, i).v;
     }
 }
 
@@ -109,8 +109,8 @@ void Sim::advectVel(float dt) {
 
     float h2 = 0.5f * h;
 
-    for (int i = 0; i < grid.cols; i++) {
-        for (int j = 0; j < grid.rows; j++) {
+    for (int i = 0; i < grid.rows; i++) {
+        for (int j = 0; j < grid.cols; j++) {
 
 
             // u component
@@ -157,8 +157,8 @@ void Sim::advectSmoke(float dt) {
     float v;
     float x;
     float y;
-    for (int i = 0; i < grid.cols; i++) {
-        for (int j = 0; j < grid.rows; j++) {
+    for (int i = 0; i < grid.rows; i++) {
+        for (int j = 0; j < grid.cols; j++) {
 
             if (grid.getCell(i, j).isSim) {
                 u = (grid.getCell(i, j).u + grid.getCell(i+1, j).u) * 0.5f;
@@ -194,8 +194,8 @@ float Sim::sampleField(float x, float y, int field) {
     float  h1 = 1.0f / h;
     float  h2 = 0.5f * h;
 
-    x = fmax(fmin(x, grid.cols * h), h);
-    y = fmax(fmin(y, grid.rows * h), h);
+    x = fmax(fmin(x, grid.rows * h), h);
+    y = fmax(fmin(y, grid.cols * h), h);
 
     float dx = 0.0;
     float dy = 0.0;
@@ -215,13 +215,13 @@ float Sim::sampleField(float x, float y, int field) {
 
     }
 
-    float  x0 = fmin(floor((x-dx)*h1), grid.cols-1);
+    float  x0 = fmin(floor((x-dx)*h1), grid.rows-1);
     float  tx = ((x-dx) - x0*h) * h1;
-    float  x1 = fmin(x0 + 1, grid.cols-1);
+    float  x1 = fmin(x0 + 1, grid.rows-1);
 
-    float y0 = fmin(floor((y-dy)*h1), grid.rows-1);
+    float y0 = fmin(floor((y-dy)*h1), grid.cols-1);
     float ty = ((y-dy) - y0*h) * h1;
-    float y1 = fmin(y0 + 1, grid.rows-1);
+    float y1 = fmin(y0 + 1, grid.cols-1);
 
     float sx = 1.0f - tx;
     float sy = 1.0f - ty;
@@ -256,6 +256,21 @@ float Sim::sampleField(float x, float y, int field) {
 void Sim::show() {
     grid.showSim();
 
+}
+
+void Sim::resize(int a, int b) {
+    Grid newGrid = Grid(a, b);
+    int n = fmin(newGrid.rows, grid.rows);
+    int m = fmin(newGrid.cols, grid.cols);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            newGrid.getCell(i, j).copyFrom(grid.getCell(i, j));
+            newGrid.getCell(i, j).copyFrom(grid.getCell(i, j));
+        }
+    }
+//    grid.deleteCells();
+    grid.copyCells(newGrid);
+    h = grid.getCell(0, 0).repr.a;
 }
 
 
