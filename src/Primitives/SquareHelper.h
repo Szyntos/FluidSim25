@@ -13,7 +13,7 @@
 
 class SquareHelper {
 public:
-    int h;
+    float h;
     float vertices[24]{};
     unsigned int indices[6]{};
     unsigned int VAO;
@@ -21,7 +21,7 @@ public:
     unsigned int VBO;
     Shader ourShader;
     SquareHelper();
-    explicit SquareHelper(int x);
+    explicit SquareHelper(float x);
 
 private:
     void generateArray();

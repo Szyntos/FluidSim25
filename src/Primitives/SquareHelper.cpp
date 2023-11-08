@@ -10,7 +10,7 @@
 SquareHelper::SquareHelper() {
 
 }
-SquareHelper::SquareHelper(int h) {
+SquareHelper::SquareHelper(float h) {
     this->h = h;
     ourShader = Shader(R"(..\src\shaders\Square\vShader.glsl)",
                           R"(..\src\shaders\Square\fShader.glsl)");

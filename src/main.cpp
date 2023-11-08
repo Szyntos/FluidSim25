@@ -19,6 +19,9 @@ double dy = 0;
 int isMouseOnScreen = 0;
 int isMouseLeftPressed = 0;
 int isMouseRightPressed = 0;
+int isMouseMiddlePressed = 0;
+int brushPositionsX[] = {0, 0, 1, 1, 1, 0, -1, -1, -1};
+int brushPositionsY[] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
 //Sim sim;
 
 
@@ -33,11 +36,14 @@ int main()
     if (init()){
         return -1;
     }
-
+    float realH;
 //    Grid grid = Grid(50, 50);
-    int h = 100;
-    Sim sim = Sim(h, h);
-    sim.o = 1.9;
+    int h = 120;
+    realH = windowHeight/h;
+    realH = windowHeight/realH;
+    std::cout<<realH;
+    Sim sim = Sim(realH, realH);
+    sim.o = 1.5;
 
 
     double oldTimeSinceStart = 0;
@@ -50,19 +56,40 @@ int main()
 
         processInput(window);
 
-        glClearColor(0.5f, 0.0f, 0.8f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+
         if ( isMouseLeftPressed){
-            sim.grid.getCell(bound(0, sim.grid.cols - 1, xpos/sim.h),
-                             bound(0, sim.grid.cols - 1, sim.grid.rows -  ypos/sim.h - 1)).u = 2000 * dx;
-            sim.grid.getCell(bound(0, sim.grid.cols - 1, xpos/sim.h),
-                             bound(0, sim.grid.cols - 1, sim.grid.rows -  ypos/sim.h - 1)).v = -2000 * dy;
+            for (int i = 0; i < 9; ++i) {
+                sim.grid.getCell(bound(0, sim.grid.cols - 1,
+                                       xpos/sim.h + brushPositionsX[i]),
+                                 bound(0, sim.grid.cols - 1,
+                                       sim.grid.rows -  ypos/sim.h - 1 + brushPositionsY[i])).u = 1000 * dx;
+                sim.grid.getCell(bound(0, sim.grid.cols - 1,
+                                       xpos/sim.h + brushPositionsX[i]),
+                                 bound(0, sim.grid.cols - 1,
+                                       sim.grid.rows -  ypos/sim.h - 1 + brushPositionsY[i])).v = -1000 * dy;
+            }
+
         }else if (isMouseRightPressed){
-            sim.grid.getCell(bound(0, sim.grid.cols - 1, xpos/sim.h),
-                             bound(0, sim.grid.cols - 1, sim.grid.rows -  ypos/sim.h - 1)).d = 5000;
+            for (int i = 0; i < 9; ++i) {
+                sim.grid.getCell(bound(0, sim.grid.cols - 1,
+                                       xpos / sim.h + brushPositionsX[i]),
+                                 bound(0, sim.grid.cols - 1,
+                                       sim.grid.rows - ypos / sim.h - 1 + brushPositionsY[i])).d = 5000;
+            }
+        }else if (isMouseMiddlePressed){
+            for (int i = 0; i < 9; ++i) {
+                sim.grid.getCell(bound(0, sim.grid.cols - 1,
+                                       xpos / sim.h + brushPositionsX[i]),
+                                 bound(0, sim.grid.cols - 1,
+                                       sim.grid.rows - ypos / sim.h - 1 + brushPositionsY[i])).isSim = 0;
+            }
         }
+
 
 
 //        if (iii % 100 == 0||1){
@@ -131,6 +158,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         isMouseRightPressed = 1;
     }else{
         isMouseRightPressed = 0;
+    }
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS){
+        isMouseMiddlePressed = 1;
+    }else{
+        isMouseMiddlePressed = 0;
     }
 
 }

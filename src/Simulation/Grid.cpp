@@ -6,7 +6,8 @@
 #include "../utils/Globals.h"
 
 Grid::Grid(int numRows, int numCols) {
-    sqh = SquareHelper(windowHeight / numRows);
+    sqh = SquareHelper((float)((float)windowHeight) / (float)numRows);
+//    std::cout<<sqh.h<<"\n";
     rows = numRows;
     cols = numCols;
 

@@ -14,8 +14,8 @@ Sim::Sim(int a, int b) : grid(a, b){
 
 
 void Sim::updateVelocity(float dt) {
-    for (int i = 0; i < grid.rows; ++i) {
-        for (int j = 0; j < grid.cols; ++j) {
+    for (int i = 0; i < grid.cols; ++i) {
+        for (int j = 0; j < grid.rows; ++j) {
             if (grid.getCell(j, i).isSim){
                 grid.getCell(j, i).v += dt * g;
             }
