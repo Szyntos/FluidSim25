@@ -16,6 +16,7 @@ SquareHelper::SquareHelper(float h) {
                           R"(..\src\shaders\Square\fShader.glsl)");
     generateArray();
     initVBOs();
+    r = (float)(rand()%100);
 }
 
 void SquareHelper::generateArray() {

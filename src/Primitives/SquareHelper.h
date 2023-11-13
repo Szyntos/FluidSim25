@@ -14,6 +14,7 @@
 class SquareHelper {
 public:
     float h;
+    float r;
     float vertices[24]{};
     unsigned int indices[6]{};
     unsigned int VAO;

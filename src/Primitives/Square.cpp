@@ -44,9 +44,9 @@ void Square::show() const {
 void Square::showSim(float u, float v, float p, float d) const {
     sqh.ourShader.use();
 
-    sqh.ourShader.setFloat("colorOffr", -sigmoid((d/5-4)));
+    sqh.ourShader.setFloat("colorOffr", -sigmoid((d/(2)-40)));
     sqh.ourShader.setFloat("colorOffg", -sigmoid((d/5-9)));
-    sqh.ourShader.setFloat("colorOffb", -sigmoid((d/5-10)));
+    sqh.ourShader.setFloat("colorOffb", -sigmoid((d/20-10)));
 //    sqh.ourShader.setFloat("colorOffr", -v);
     sqh.ourShader.setMat4("model",
                           glm::scale(glm::mat4(1.0f), glm::vec3(a, a, 1)));

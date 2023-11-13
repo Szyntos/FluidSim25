@@ -17,7 +17,8 @@ double prevy = 0;
 double dx = 0;
 double dy = 0;
 
-int res = 100;
+int res = 80;
+int updateCount = 30;
 int windowResized = 0;
 int isMouseOnScreen = 0;
 int isMouseLeftPressed = 0;
@@ -57,7 +58,7 @@ int main()
 
         processInput(window);
 
-        glClearColor(0.0f, 0.0f, 0.8f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         if (windowResized){
             resizeSim(res, &sim);
@@ -68,11 +69,11 @@ int main()
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         brush(&sim);
 
-        sim.update(10, deltaTime);
+        sim.update(updateCount, deltaTime);
 
         sim.show();
-        std::cout << 1/deltaTime <<"\n";
-        //        std::cout<<sim.sampleField(xpos, windowHeight - ypos, 1)<<"\n";
+//        std::cout << 1/deltaTime <<"\n";
+//        std::cout<<sim.sampleField(windowHeight - ypos, xpos, 1)<<"\n";
 
 
         glfwSwapBuffers(window);

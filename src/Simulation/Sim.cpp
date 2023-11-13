@@ -35,7 +35,7 @@ void Sim::incompressibility(int count, float dt) {
     for (int k = 0; k < count; ++k) {
         for (int i = 0; i < grid.cols; i++) {
             for (int j = 0; j < grid.rows; j++) {
-//                Cell currentCell = grid.getCell(j, i);
+                Cell currentCell = grid.getCell(j, i);
 //                grid.getCell(j, i).setP(100);
                 if (grid.getCell(j, i).isSim){
                     sx0 = grid.getCell(j-1, i).isSim;
@@ -55,7 +55,7 @@ void Sim::incompressibility(int count, float dt) {
                         grid.getCell(j+1, i).u += sx1 * div;
                         grid.getCell(j, i).v -= sy0 * div;
                         grid.getCell(j, i+1).v += sy1 * div;
-                        grid.getCell(j, i).p  += div / s * d * h / dt;
+                        currentCell.p  += div / s * d * h / dt;
 
                     }
 
@@ -114,7 +114,7 @@ void Sim::advectVel(float dt) {
 
 
             // u component
-            if (grid.getCell(i, j).isSim) {
+            if (grid.getCell(i, j).isSim && grid.getCell(i - 1, j).isSim) {
                 x = i*h;
                 y = j*h + h2;
                 u = grid.getCell(i, j).u;
@@ -126,7 +126,7 @@ void Sim::advectVel(float dt) {
                 grid.getCell(i, j).newU = u;
             }
             // v component
-            if (grid.getCell(i, j).isSim) {
+            if (grid.getCell(i, j).isSim && grid.getCell(i, j - 1).isSim) {
                 x = i*h + h2;
                 y = j*h;
                 u = avgU(i, j);
@@ -167,7 +167,7 @@ void Sim::advectSmoke(float dt) {
                 y = j*h + h2 - dt*v;
 //                std::cout<<sampleField(x,y, 2)<<std::endl;
 
-                grid.getCell(i, j).newD = sampleField(x,y, 2);
+                grid.getCell(i, j).newD = sampleField(x,y, 2)*0.999;
             }
         }
     }
