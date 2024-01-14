@@ -1,2 +1,6 @@
 # FluidSim25
-Fluid Simulation in OpenGL
+Eulerian Fluid Simulation in OpenGL
+
+## Demo
+
+
